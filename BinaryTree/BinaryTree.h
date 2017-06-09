@@ -10,34 +10,88 @@ class BinaryTree
 {
 public:
 	BinaryTree();
+	~BinaryTree();
+
+	void DeleteTree();
+
 	bool Add(T data);
 	bool Remove(T data);
-	bool Empty() const;	
+	bool Empty() const;
+
+	int GetDepth();
+
 	void Print() const;
 private:
-	void CalculateWeight();	
-	int CalculateWeight(Node<T>* current);
 	bool Add(Node<T>* start, T data);
 	bool Remove(Node<T> * start, T data);
+
+	void CalculateWeight();	
+	int CalculateWeight(Node<T>* current);	
 	void Balance();
-	void CalculateDepth();
-	
+
+	void CalculateDepth();	
 
 	Node<T>* root;
 	int depth;
 };
+
+
+/**********************\
+*****Public Methods*****
+\**********************/
 
 template <class T>
 BinaryTree<T>::BinaryTree()
 {
 	this->root = nullptr;
 }
+template <class T>
+BinaryTree<T>::~BinaryTree()
+{
+	this->DeleteTree();
+}
+template <class T>
+void BinaryTree<T>::DeleteTree()
+{
+	if (this->root == nullptr)
+	{
+		return;
+	}
+	else
+	{
+		std::queue<Node<T>*> queue;
+		queue.push(this->root);
 
+		Node<T>* current;
 
+		while (!queue.empty())
+		{
+			current = queue.front();
+			queue.pop();
+
+			if (current->left != nullptr)
+			{
+				queue.push(current->left);
+			}
+			if (current->right != nullptr)
+			{
+				queue.push(current->right);
+			}
+
+			current->left = nullptr;
+			current->right = nullptr;
+			current->parent = nullptr;
+			delete current;
+		}
+	}
+}
 template <class T>
 bool BinaryTree<T>::Add(T data)
 {
+	//Check if we sucessfully add the node.
 	bool success = this->Add(this->root, data);
+
+	//If the node is added, rebalance the binary tree.
 	if (success)
 	{
 		this->CalculateWeight();
@@ -49,7 +103,10 @@ bool BinaryTree<T>::Add(T data)
 template <class T>
 bool BinaryTree<T>::Remove(T data)
 {
+	//Check if we sucessfully remove the node.
 	bool success = this->Remove(this->root, data);
+
+	//If the node is removed, rebalance the binary tree.
 	if (success)
 	{
 		this->CalculateWeight();
@@ -58,6 +115,87 @@ bool BinaryTree<T>::Remove(T data)
 
 	return success;
 }
+template <class T>
+bool BinaryTree<T>::Empty() const
+{
+	return this->root == nullptr;
+}
+template <class T>
+
+int BinaryTree<T>::GetDepth()
+{
+	this->CalculateDepth();
+
+	return this->depth;
+}
+template <class T>
+void BinaryTree<T>::Print() const
+{
+	std::queue<Node<T>*> queue;
+	Node<T>* current;
+	Node<T>* nullNode = nullptr;
+	bool end = false;
+	int count = 0;
+
+	queue.push(this->root);
+	count = 1;
+
+	while (!queue.empty() && !end)
+	{
+		end = true;
+
+		for (int i = 0; i < count; i++)
+		{
+			current = queue.front();
+			queue.pop();
+
+			if (current != nullNode)
+			{
+				std::cout << current->data << " ";
+			}
+			else
+			{
+				std::cout << "- ";
+			}
+			
+			if (current == nullNode)
+			{
+				queue.push(nullNode);
+				queue.push(nullNode);
+			}
+			else
+			{
+				if (current->left != nullptr)
+				{
+					queue.push(current->left);
+					end = false;
+				}
+				else
+				{
+					queue.push(nullNode);
+				}
+
+				if (current->right != nullptr)
+				{
+					queue.push(current->right);
+					end = false;
+				}
+				else
+				{
+					queue.push(nullNode);
+				}
+			}
+		}
+		
+		count = queue.size();
+		std::cout << std::endl;
+	}
+}
+
+/**********************\
+****Private Methods*****
+\**********************/
+
 template <class T>
 bool BinaryTree<T>::Add(Node<T>* start, T data)
 {
@@ -97,8 +235,11 @@ bool BinaryTree<T>::Add(Node<T>* start, T data)
 			{
 				current = nullptr;
 				trail = nullptr;
+				newNode = nullptr;
 				delete current;
 				delete trail;
+				delete newNode;
+
 				return false;
 			}
 		}
@@ -116,7 +257,7 @@ bool BinaryTree<T>::Add(Node<T>* start, T data)
 			newNode->parent = trail;
 			trail->right = newNode;
 		}
-				
+
 		//Cleanup.
 		current = nullptr;
 		trail = nullptr;
@@ -293,7 +434,7 @@ bool BinaryTree<T>::Remove(Node<T>* start, T data)
 		}
 	}
 
-	
+
 	//Cleanup.
 	current = nullptr;
 	trail = nullptr;
@@ -302,84 +443,7 @@ bool BinaryTree<T>::Remove(Node<T>* start, T data)
 
 	return true;
 }
-
-
-
-
-
 template <class T>
-bool BinaryTree<T>::Empty() const
-{
-	return this->root == nullptr;
-}
-
-template <class T>
-void BinaryTree<T>::Print() const
-{
-	std::queue<Node<T>*> queue;
-	Node<T>* current;
-	Node<T>* nullNode = nullptr;
-	bool end = false;
-	int count = 0;
-
-	queue.push(this->root);
-	count = 1;
-
-	while (!queue.empty() && !end)
-	{
-		end = true;
-
-		for (int i = 0; i < count; i++)
-		{
-			current = queue.front();
-			queue.pop();
-
-			if (current != nullNode)
-			{
-				std::cout << current->data << " ";
-			}
-			else
-			{
-				std::cout << "- ";
-			}
-			
-			if (current == nullNode)
-			{
-				queue.push(nullNode);
-				queue.push(nullNode);
-			}
-			else
-			{
-				if (current->left != nullptr)
-				{
-					queue.push(current->left);
-					end = false;
-				}
-				else
-				{
-					queue.push(nullNode);
-				}
-
-				if (current->right != nullptr)
-				{
-					queue.push(current->right);
-					end = false;
-				}
-				else
-				{
-					queue.push(nullNode);
-				}
-			}
-		}
-		
-		count = queue.size();
-		std::cout << std::endl;
-	}
-}
-template <class T>
-
-
-
 
 void BinaryTree<T>::CalculateWeight()
 {
@@ -430,8 +494,8 @@ void BinaryTree<T>::Balance()
 		{
 			T data = current->data;
 
-			this->Remove(data);
-			this->Add(data);
+			this->Remove(this->root, data);
+			this->Add(this->root, data);
 
 			std::queue<Node<T>*> empty;
 			std::swap(queue, empty);
@@ -441,8 +505,6 @@ void BinaryTree<T>::Balance()
 	current = nullptr;
 	delete current;
 }
-
-
 template <class T>
 void BinaryTree<T>::CalculateDepth()
 {	
