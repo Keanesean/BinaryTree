@@ -5,6 +5,7 @@
 
 #include "Node.h"
 
+
 template <class T>
 class BinaryTree
 {

@@ -12,7 +12,7 @@ int main()
 	std::vector<int> list;	
 	
 	unsigned int step = 10000;
-	unsigned int minSize = 10000;
+	unsigned int minSize = 20000;
 	unsigned int maxSize = 1000000;
 
 	for (unsigned int i = minSize; i <= maxSize; i += step)
@@ -37,6 +37,9 @@ int main()
 		std::cout.imbue(std::locale(""));
 		std::cout << "Size (Nodes): " << i << std::endl;		
 		std::cout << "Time (ms): " << time << std::endl;
+
+		int depth = tree.GetDepth();
+		std::cout << "Depth: " << depth << std::endl;
 
 		std::cout << std::endl;
 
